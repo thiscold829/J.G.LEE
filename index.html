@@ -10,26 +10,26 @@
 
   <style>
     :root {
-      /* === Real Crystal Palette === */
+      /* === Real Droplet Glass Variables === */
       --text-white: #ffffff;
       --text-glass: rgba(255, 255, 255, 0.95);
-      --text-muted: rgba(255, 255, 255, 0.7);
       
-      /* 유리의 핵심: 색상은 거의 없고 빛만 남김 */
-      --glass-surface: rgba(255, 255, 255, 0.01); /* 투명도 99% */
-      --glass-border: rgba(255, 255, 255, 0.3);   /* 얇은 빛 반사 */
-      --glass-shine: rgba(255, 255, 255, 0.15);    /* 표면 광택 */
+      /* 유리 속성: 투명도 100% + 강력한 굴절 + 두께감 */
+      --glass-bg: rgba(255, 255, 255, 0.005);
+      --glass-blur: blur(35px) saturate(140%);
+      --radius-droplet: 32px;
       
-      --accent-cyan: #22d3ee;
-      --accent-gold: #fde047;
-      
-      --radius-glass: 28px;
+      --shadow-droplet: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.8), /* 상단 날카로운 반사광 */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15), /* 전체 윤곽 */
+        inset 0 -10px 20px rgba(0, 0, 0, 0.15),   /* 하단 두께 굴절 */
+        0 25px 50px -20px rgba(0, 0, 0, 0.5);     /* 외부 그림자 */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     
     body {
-      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-family: "Pretendard", -apple-system, system-ui, sans-serif;
       color: var(--text-white);
       line-height: 1.5;
       word-break: keep-all;
@@ -38,198 +38,150 @@
       background-color: #000;
     }
 
-    /* ===== BACKGROUND: The Abstract Wave (사진 속 파도 재현) ===== */
-    .wallpaper-container {
+    /* ===== NEW BACKGROUND: Photo-Real Mesh Gradient (사진 속 파도 재현) ===== */
+    .bg-photo-wave {
       position: fixed; inset: 0; z-index: -3;
-      background: #020617; /* Deepest Blue */
-      overflow: hidden;
+      /* 여러 개의 부드러운 빛 덩어리를 겹쳐서 사진 같은 유기적인 흐름을 만듦 */
+      background: 
+        /* 1. 좌측 상단: 밝은 하늘색 하이라이트 */
+        radial-gradient(circle at 20% 20%, rgba(125, 211, 252, 0.8) 0%, transparent 50%),
+        /* 2. 중앙 우측: 깊고 푸른 파도의 몸체 */
+        radial-gradient(circle at 70% 60%, rgba(29, 78, 216, 0.7) 0%, transparent 60%),
+        /* 3. 하단: 어두운 심해 베이스 */
+        radial-gradient(circle at 10% 90%, rgba(15, 23, 42, 1) 0%, transparent 50%),
+        /* 4. 전체적인 대각선 흐름을 잡아주는 베이스 그라데이션 */
+        linear-gradient(160deg, #0ea5e9 0%, #1e40af 50%, #020617 100%);
+      
+      background-size: 150% 150%;
+      /* 전체적으로 부드럽게 뭉개서 사진 같은 느낌을 줌 */
+      filter: blur(20px); 
+      animation: waveShift 25s ease-in-out infinite alternate;
     }
 
-    /* 1. 메인 파도 (화면을 가로지르는 푸른 곡선) */
-    .wave-main {
-      position: absolute;
-      top: -30%; left: -20%; width: 150%; height: 150%;
-      background: conic-gradient(from 180deg at 50% 50%, #0c4a6e 0deg, #0284c7 80deg, #38bdf8 160deg, #0f172a 360deg);
-      border-radius: 40%;
-      filter: blur(60px);
-      opacity: 0.8;
-      animation: waveFloat 20s infinite alternate ease-in-out;
-      transform: rotate(15deg);
+    /* 빛이 천천히 일렁이는 효과 */
+    @keyframes waveShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
     }
 
-    /* 2. 하이라이트 빛 (상단에서 내려오는 오로라) */
-    .wave-light {
-      position: absolute;
-      top: -10%; right: -10%; width: 80%; height: 80%;
-      background: radial-gradient(circle at center, rgba(125, 211, 252, 0.4) 0%, transparent 60%);
-      filter: blur(50px);
-      mix-blend-mode: screen;
-      animation: lightPulse 10s infinite alternate;
-    }
-
-    /* 3. 깊은 심해 (하단 어두움) */
-    .wave-depth {
-      position: absolute;
-      bottom: -20%; left: 0; width: 100%; height: 60%;
-      background: linear-gradient(to top, #000 0%, transparent 100%);
-      z-index: -1;
-    }
-
-    /* 4. 노이즈 텍스처 (리얼함) */
-    .bg-grain {
-      position: fixed; inset: 0; z-index: -1;
-      opacity: 0.04;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
-      pointer-events: none;
-      mix-blend-mode: overlay;
-    }
-
-    @keyframes waveFloat {
-      0% { transform: rotate(15deg) translate(0, 0) scale(1); }
-      100% { transform: rotate(18deg) translate(-20px, 20px) scale(1.05); }
-    }
-    @keyframes lightPulse {
-      0% { opacity: 0.5; transform: scale(1); }
-      100% { opacity: 0.8; transform: scale(1.1); }
+    /* 전체적인 질감을 위한 노이즈 */
+    .bg-noise {
+      position: fixed; inset: 0; z-index: -1; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay; pointer-events: none;
     }
 
     a { text-decoration: none; color: inherit; }
     .container { width: min(100% - 40px, 1080px); margin: 0 auto; }
 
 
-    /* ===== REAL CRYSTAL GLASS (완전 투명) ===== */
-    /* 불투명한 배경색(background-color)을 없애고, 오직 굴절(backdrop-filter)과 빛(box-shadow)만 남김 */
-    .glass, .glass-strong, .step, .trust-card, .svc, .footer-call, .hero-point {
+    /* ===== REAL DROPLET GLASS (기존 유지) ===== */
+    .glass, .glass-strong, .step, .trust-card, .svc, .footer-call, .hero-point, .sticky-bar {
       position: relative;
-      background: var(--glass-surface); /* 투명 */
-      
-      /* 강력한 굴절: 뒤의 파도가 흐물거리며 비침 */
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      
-      border-radius: var(--radius-glass);
-      
-      /* 유리의 두께감과 가장자리 빛 */
-      box-shadow: 
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.4), /* 상단 하이라이트 */
-        inset 0 0 0 1px rgba(255, 255, 255, 0.08), /* 전체 윤곽 */
-        0 20px 50px -10px rgba(0, 0, 0, 0.5);      /* 붕 떠있는 그림자 */
-        
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: var(--radius-droplet);
+      box-shadow: var(--shadow-droplet);
       color: var(--text-white);
       overflow: hidden;
+      transform: translate3d(0,0,0);
       transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-
-    /* 유리의 표면 반사 (사선 광택) */
-    .glass::after, .svc::after, .step::after {
+    .sticky-bar { background: rgba(0,0,0,0.1); }
+    .glass::after, .svc::after, .trust-card::after {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(125deg, rgba(255,255,255,0.1) 0%, transparent 40%, transparent 100%);
+      background: linear-gradient(125deg, rgba(255,255,255,0.25) 0%, transparent 40%, transparent 100%);
       pointer-events: none;
     }
-
     .glass:active, .svc:active { transform: scale(0.98); }
 
-    /* Typography: 투명한 유리 위에서도 잘 보이도록 */
+    /* ===== Typography ===== */
     h1, h2, h3, h4, h5 { 
-      color: #fff; font-weight: 800; letter-spacing: -0.02em;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.5); /* 진한 그림자로 가독성 확보 */
+      color: #fff; font-weight: 800; letter-spacing: -0.01em;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.5); 
     }
-    p, span, li, small { color: var(--text-glass); font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-    
-    .section-title { font-size: 1.6rem; margin-bottom: 8px; padding-left: 4px; }
-    .section-desc { font-size: 1rem; color: var(--text-muted); margin-bottom: 24px; padding-left: 4px; }
+    p, span, li, small { 
+      color: rgba(255, 255, 255, 0.9); font-weight: 500; 
+      text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    }
+    .section-title { font-size: 1.6rem; margin-bottom: 8px; padding-left: 6px; }
+    .section-desc { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 24px; padding-left: 6px; }
+    i { filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); }
 
 
-    /* ===== Components ===== */
-    
-    /* Top Bar: 거의 보이지 않는 얇은 막 */
+    /* ===== Layout Components (기존 유지) ===== */
     .topbar {
-      position: sticky; top: 0; z-index: 50; padding: 12px 0;
-      background: rgba(0, 0, 0, 0.01);
-      backdrop-filter: blur(15px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: sticky; top: 0; z-index: 50; padding: 14px 0;
+      background: transparent;
+      backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     .topbar-wrap { display: flex; align-items: center; justify-content: space-between; }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; }
     .brand .logo {
-      width: 34px; height: 34px; border-radius: 10px;
-      display: grid; place-items: center; background: #fff; color: #000;
-      box-shadow: 0 0 20px rgba(255,255,255,0.3);
+      width: 34px; height: 34px; border-radius: 10px; background: #fff; color: #000;
+      display: grid; place-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     .call-mini {
       padding: 8px 16px; border-radius: 99px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
       font-size: 0.9rem; font-weight: 700;
-      backdrop-filter: blur(10px);
     }
 
-    /* Hero */
     .hero { padding: 60px 0 50px; }
     .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start; }
-    
     .trust-banner { padding: 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 6px; }
     .trust-line { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .trust-line i { color: var(--accent-gold); filter: drop-shadow(0 0 10px var(--accent-gold)); }
-
+    .trust-line i { color: #fde047; }
     .hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin-bottom: 16px; }
-    .hero .subtitle { font-size: 1.15rem; margin-bottom: 30px; }
-
+    .hero .subtitle { font-size: 1.15rem; margin-bottom: 30px; opacity: 0.9; }
     .hero-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .hero-point { padding: 18px 10px; text-align: center; }
     .hero-point .k { font-size: 0.85rem; opacity: 0.8; margin-bottom: 4px; }
     .hero-point .v { font-size: 1.1rem; font-weight: 700; }
-
-    /* Call Box */
-    .call-box-wrap { height: 100%; padding: 0; border-radius: var(--radius-glass); }
+    .call-box-wrap { height: 100%; padding: 0; }
     .call-box {
       display: flex; flex-direction: column; gap: 10px; padding: 30px;
       align-items: center; text-align: center; height: 100%; justify-content: center;
     }
-    .call-box .label { font-size: 1rem; }
     .call-box .num { 
       font-size: 2.2rem; font-weight: 800; margin: 4px 0 12px; letter-spacing: -0.5px;
-      text-shadow: 0 0 25px rgba(255,255,255,0.6); /* 네온 효과 */
+      text-shadow: 0 0 30px rgba(255,255,255,0.6);
     }
     .call-btn {
       width: 100%; padding: 16px; border-radius: 18px;
       background: #fff; color: #000; font-size: 1.1rem; font-weight: 800;
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      box-shadow: 0 0 30px rgba(255,255,255,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
     section.block { padding: 40px 0; }
-    
     .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .svc { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
-    .svc-top { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .svc-top { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.15); }
     .svc-icon { 
-      width: 48px; height: 48px; border-radius: 16px;
-      background: rgba(255,255,255,0.1); 
+      width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,0.1); 
       display: grid; place-items: center; font-size: 1.3rem; color: #fff;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
     }
     .svc h3 { font-size: 1.2rem; }
     .svc ul { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
-    .svc ul li::before { content: "•"; color: rgba(255,255,255,0.6); margin-right: 6px; }
-    .svc-foot { margin-top: auto; font-size: 0.9rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px; font-weight: 700; }
+    .svc ul li::before { content: "•"; opacity: 0.6; margin-right: 6px; }
+    .svc-foot { margin-top: auto; font-size: 0.9rem; color: #67e8f9; display: flex; align-items: center; gap: 6px; font-weight: 700; }
 
     .trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .trust-card { 
       padding: 24px 16px; text-align: center; 
       display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .trust-card i { 
-      font-size: 2.2rem; margin-bottom: 12px; 
-      filter: drop-shadow(0 0 12px rgba(255,255,255,0.3));
-    }
+    .trust-card i { font-size: 2.2rem; margin-bottom: 12px; }
     
     .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .step { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
     .step .no {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(255,255,255,0.15); font-weight: 800;
+      width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); font-weight: 800;
       display: grid; place-items: center; font-size: 0.95rem; margin-bottom: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
     }
     .step h5 { font-size: 1.1rem; }
     .step p { font-size: 0.9rem; opacity: 0.8; }
@@ -238,34 +190,27 @@
     .footer-call { padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .footer-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .btn-glass {
-      padding: 12px 24px; border-radius: 14px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+      padding: 12px 24px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
       font-weight: 700; transition: 0.2s;
     }
-    .btn-fill { background: #fff; color: #000; border: none; box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+    .btn-fill { background: #fff; color: #000; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 
     .sticky-bar {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       width: min(92%, 540px); height: 76px;
-      background: rgba(10, 20, 40, 0.4); /* 약간의 다크 틴트 */
-      backdrop-filter: blur(40px) saturate(180%);
-      border-radius: 999px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 14px 0 32px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2);
-      z-index: 100;
+      border-radius: 999px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 14px 0 32px; z-index: 100;
     }
     .sticky-info { display: flex; flex-direction: column; justify-content: center; }
     .sticky-label { font-size: 0.8rem; opacity: 0.8; margin-bottom: 2px; }
     .sticky-num { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
     .sticky-actions { display: flex; gap: 10px; }
     .dock-btn {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: grid; place-items: center; font-size: 1.3rem;
+      width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 1.3rem;
       transition: transform 0.2s;
     }
     .dock-btn.sms { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
-    .dock-btn.tel { background: #fff; color: #000; box-shadow: 0 0 25px rgba(255,255,255,0.4); }
+    .dock-btn.tel { background: #fff; color: #000; box-shadow: 0 5px 20px rgba(255,255,255,0.4); }
     .dock-btn:active { transform: scale(0.9); }
 
     @media (max-width: 960px) {
@@ -284,12 +229,8 @@
 </head>
 <body>
 
-  <div class="wallpaper-container">
-    <div class="wave-main"></div>
-    <div class="wave-light"></div>
-    <div class="wave-depth"></div>
-  </div>
-  <div class="bg-grain"></div>
+  <div class="bg-photo-wave"></div>
+  <div class="bg-noise"></div>
 
   <div class="topbar">
     <div class="container topbar-wrap">
@@ -339,7 +280,7 @@
       </div>
 
       <div class="hero-right">
-        <div class="glass-strong call-box-wrap">
+        <div class="glass call-box-wrap">
           <a class="call-box" href="tel:010-4202-3885">
             <div>
               <div class="label">인천/근교 출장 수리 문의</div>
